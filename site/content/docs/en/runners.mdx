@@ -1,0 +1,116 @@
+---
+title: Runners
+description: Global ata and annotask path configuration for local and qsubsge execution.
+---
+
+## Overview
+
+annopi-ts does not hardcode `ata` or `annotask` binary names. Instead, it resolves **global
+runner paths** from merged pipeline `deps` and generates `runcmd` strings in `tasks.yml`.
+
+| Mode | `resources.executor` | Generated runcmd |
+|---|---|---|
+| **local** | `local` | `{localRunner} -i script -l N -t M` |
+| **qsubsge** | `qsubsge` | `{annotaskRunner} qsubsge -i script ...` |
+
+## Why no `local` subcommand?
+
+Both **ata** and **annotask** accept the same local interface:
+
+```bash
+runner -i script.sh -l <lines> -t <threads>
+```
+
+- **ata** always runs locally with `-i`
+- **annotask** defaults to local mode when no subcommand is given
+
+So in local mode, annopi-ts generates commands **without** a `local` subcommand. This keeps
+ata and annotask interchangeable for local execution.
+
+For cluster submission, only annotask supports the `qsubsge` subcommand:
+
+```bash
+annotask qsubsge -i script.sh -l N -t M --cpu C --queue Q --project P
+```
+
+## Configuring paths in pipeline.yml
+
+Set global software paths under `deps`:
+
+```yaml
+name: my_pipeline
+version: 1.0.0
+
+deps:
+  ata: /Volumes/data/GOPATH/bin/ata
+  annotask: /opt/annotask
+
+tasks:
+  local_task:
+    command: echo hello
+    resources:
+      executor: local
+
+  cluster_task:
+    command: echo cluster
+    resources:
+      executor: qsubsge
+      cpu: 4
+      queue: all.q
+```
+
+### Resolution rules
+
+```
+localRunner    = deps.ata ?? deps.annotask ?? defaultAta
+annotaskRunner = deps.annotask ?? defaultAnnotask
+```
+
+- **localRunner** is used for all `executor: local` tasks
+- **annotaskRunner** is used for all `executor: qsubsge` tasks
+
+If `deps.ata` is not set but `deps.annotask` is, annotask serves as the local runner too.
+
+### Default discovery
+
+When deps are not set, annopi-ts looks for:
+
+1. `/Volumes/data/GOPATH/bin/ata` and `/Volumes/data/GOPATH/bin/annotask`
+2. Binaries named `ata` / `annotask` on `PATH`
+3. Falls back to bare command names `ata` / `annotask`
+
+## Example tasks.yml output
+
+```yaml
+tasks:
+  1-0-cellranger:
+    runcmd: annotask qsubsge -i shell/1-0-cellranger.sh -l 1 -t 10 --cpu 8 --queue sci.q --project DEMO
+    depends: []
+  2-0-qc:
+    runcmd: /Volumes/data/GOPATH/bin/ata -i shell/2-0-qc.sh -l 4 -t 10
+    depends: [1-0-cellranger]
+```
+
+Note: local runcmd has no `local` keyword and no `--project` flag.
+
+## Related tools
+
+| Tool | Repo | Role |
+|---|---|---|
+| **ata** | [`../ata`](../ata) | Local parallel task runner |
+| **annotask** | [`../annotask`](../annotask) | Local runner + SGE qsubsge submission |
+
+Install ata for local development. annotask requires DRMAA headers to build the qsubsge module.
+
+## Other deps
+
+`deps` in `pipeline.yml` also holds tool paths used in task commands (not runners):
+
+```yaml
+deps:
+  cellranger: /opt/cellranger-7.0.0
+  reference: /data/refdata-gex-GRCh38-2020-A
+```
+
+These are expanded into `${deps.cellranger}` etc. during `conf`. Runner keys (`ata`, `annotask`)
+are reserved for execution path resolution.

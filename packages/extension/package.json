@@ -1,0 +1,38 @@
+{
+  "name": "@seqyuan/annopi-extension",
+  "version": "0.1.0",
+  "description": "Extension API placeholder for annovibe integration",
+  "type": "module",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/seqyuan/annopi-ts.git",
+    "directory": "packages/extension"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist/*"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@seqyuan/annopi-node": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^24.12.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.7.0"
+  }
+}

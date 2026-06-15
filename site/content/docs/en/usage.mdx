@@ -1,0 +1,108 @@
+---
+title: Usage
+description: annopi conf and annopi run workflow.
+---
+
+## Overview
+
+annopi-ts follows a two-step workflow:
+
+1. **`conf`** — parse configs, validate references, expand parameters, generate `shell/*.sh` and `tasks.yml`
+2. **`run`** — execute pending tasks from `tasks.yml`, respecting dependencies and `.sign` checkpoints
+
+```
+pipeline.yml + project.yml
+        │ conf
+        ▼
+  shell/*.sh + tasks.yml
+        │ run
+        ▼
+  .sign files + task outputs
+```
+
+## annopi conf
+
+```bash
+annopi conf \
+  -p <pipeline.yml> \
+  -c <project.yml> \
+  -o <outdir>
+```
+
+### What conf does
+
+1. Loads and merges `pipeline.yml` with imported task modules
+2. Validates deps, config, and sample references
+3. Expands parameters (single / sample / cmp modes)
+4. Builds the task DAG and topological order
+5. Writes one shell script per numbered task to `<outdir>/shell/`
+6. Writes `<outdir>/tasks.yml` with `runcmd`, `depends`, and `status: pending`
+
+### Example output
+
+```
+[CHECK] task 'cellranger' ... OK
+[CHECK] task 'qc' ... OK
+Generated 2 task scripts in /tmp/annopi-out/shell
+Generated tasks.yml in /tmp/annopi-out
+```
+
+### Shell script format
+
+Each `shell/N-M-taskname.sh` file contains one command per line — the format expected by
+ata and annotask `-i` input files.
+
+## annopi run
+
+```bash
+annopi run -o <outdir>
+```
+
+### What run does
+
+1. Reads `<outdir>/tasks.yml`
+2. Refreshes task status from `.sign` files in `shell/`
+3. Schedules ready tasks (dependencies satisfied, status pending)
+4. Executes `runcmd` for each ready task
+5. Writes `.sign` on success
+
+### Resume behavior
+
+If all tasks are already done:
+
+```
+All tasks already done.
+```
+
+To force re-run, delete the corresponding `.sign` files in `shell/`.
+
+## annopi install
+
+```bash
+annopi install <source>
+annopi install <source> --update
+```
+
+Installs or updates a task module from a local path or git URL. Module tasks can be
+referenced via `imports` in `pipeline.yml`.
+
+## Python ↔ TypeScript Interop
+
+annopi-ts is designed so that:
+
+- Python `annopi conf` output can be run by `annopi-ts run`
+- annopi-ts `conf` output can be run by Python `annopi run`
+
+Both engines should produce compatible `tasks.yml` semantics. Exact YAML formatting may differ.
+
+## Fixtures
+
+Test fixtures live under `tests/fixtures/annopi/`:
+
+| File | Description |
+|---|---|
+| `pipeline.yml` | scRNA example with qsubsge + local tasks |
+| `pipeline_with_deps.yml` | Pipeline with `deps` for cellranger path |
+| `project.yml` | Sample list and project parameters |
+
+See [Configuration](/docs/configuration) for YAML field reference.

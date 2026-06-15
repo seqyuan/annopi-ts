@@ -1,0 +1,149 @@
+---
+title: 配置参考
+description: annopi-ts 的 pipeline.yml 与 project.yml 参考。
+---
+
+## pipeline.yml
+
+定义工作流：任务、依赖、资源和全局 deps。
+
+```yaml
+name: scRNA_pipeline
+version: 1.0.0
+
+imports:
+  - github.com/user/scrna-tasks/cellranger@v1.2.3
+
+deps:
+  ata: /path/to/ata
+  annotask: /path/to/annotask
+  cellranger: /opt/cellranger-7.0.0
+
+tasks:
+  cellranger:
+    name: cellranger
+    inputs:
+      - ${config.Para.Para_clean}/${sample.sample_name}
+    outputs:
+      - ./process/cellranger/${sample.sample_name}/outs
+    params:
+      sample_id: ${sample.sample_id}
+      sample_name: ${sample.sample_name}
+      ref: ${config.Para.Para_ref}
+    command: |
+      cellranger count --id=${sample_id} --transcriptome=${ref}
+    resources:
+      cpu: 8
+      mem: 32
+      queue: sci.q
+      executor: qsubsge
+      mode: pe_smp
+    annotask:
+      lines: 1
+      threads: 3
+      project: ${config.Para.Para_project_id}
+
+  qc:
+    command: qc_script.py --input ${input_dir}
+    resources:
+      executor: local
+    annotask:
+      lines: 2
+      threads: 5
+
+dependencies:
+  qc:
+    - cellranger
+```
+
+### 主要字段
+
+| 字段 | 说明 |
+|---|---|
+| `name` | 流程标识，写入 `tasks.yml` |
+| `imports` | 要加载的任务模块（路径或 git） |
+| `deps` | 全局路径 — 工具和执行器（`ata`、`annotask`） |
+| `tasks` | 任务定义 |
+| `dependencies` | 任务名之间的 DAG 边 |
+
+### 任务字段
+
+| 字段 | 说明 |
+|---|---|
+| `command` | Shell 命令（按样本展开） |
+| `params` | 带 `${...}` 引用的参数绑定 |
+| `inputs` / `outputs` | 声明路径，用于校验 |
+| `resources` | CPU、mem、queue、`executor`（`local` 或 `qsubsge`） |
+| `annotask` | runcmd 生成用的 `lines`、`threads`、`project` |
+
+### 参数引用
+
+| 前缀 | 来源 |
+|---|---|
+| `${sample.*}` | `project.yml` 中的当前样本 |
+| `${config.*}` | `project.yml` 中的嵌套值 |
+| `${deps.*}` | pipeline `deps` 中的路径 |
+| `${params.*}` | 同任务内的其他参数 |
+
+参数模式：`single`（默认）、`sample`（每样本一任务）、`cmp`（两两比较）。
+
+## project.yml
+
+定义项目级数据：样本和配置参数。
+
+```yaml
+Para:
+  Para_project_id: PM-EXAMPLE-001
+  Para_ref: /data/refdata-gex-GRCh38-2020-A
+  Para_clean: /data/clean
+
+sample:
+  - sample_id: S1
+    sample_name: sample1
+  - sample_id: S2
+    sample_name: sample2
+```
+
+`sample` 列表驱动使用 `${sample.*}` 引用时的按样本展开。
+
+## tasks.yml（生成物）
+
+由 `annopi conf` 写入 `<outdir>/tasks.yml`：
+
+```yaml
+pipeline: scRNA_pipeline
+generated_at: 2026-06-15 11:20:57
+tasks:
+  1-0-cellranger:
+    runcmd: annotask qsubsge -i /out/shell/1-0-cellranger.sh ...
+    depends: []
+    status: pending
+  2-0-qc:
+    runcmd: /path/to/ata -i /out/shell/2-0-qc.sh -l 4 -t 10
+    depends: [1-0-cellranger]
+    status: pending
+```
+
+任务名编号规则：`{order}-{sampleIndex}-{taskName}`。
+
+### .sign 断点
+
+任务成功后 `run` 写入 `shell/{taskname}.sh.sign`。下次 `run` 时，
+已有 `.sign` 的任务标记为 `done` 并跳过。
+
+## 校验
+
+`conf` 校验：
+
+- 未声明的 `${deps.*}` 引用
+- 缺失的 `${config.*}` 或 `${sample.*}` 路径
+- 循环或缺失的依赖
+- 导入模块解析
+
+错误输出为 `[ERROR]`，警告为 `[WARN]`。
+
+## 延伸阅读
+
+- [执行器](/docs/runners) — ata / annotask 路径解析
+- [使用指南](/docs/usage) — conf 和 run 工作流
+- [重写方案](https://github.com/seqyuan/annopi-ts/blob/main/docs/annopi-ts-rewrite-plan-v2.1.md) — 完整 V1 设计

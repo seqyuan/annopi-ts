@@ -1,0 +1,82 @@
+---
+title: Quick Start
+description: Clone annopi-ts, build packages, and run the example pipeline.
+---
+
+## Prerequisites
+
+- **Node.js ≥ 18**
+- **pnpm** (the repo uses `pnpm@10`)
+- **ata** for local task execution ([`../ata`](https://github.com/seqyuan/ata))
+- **annotask** for qsubsge cluster submission ([`../annotask`](https://github.com/seqyuan/annotask)) — optional if all tasks use `executor: local`
+
+## Clone and Build
+
+```bash
+git clone https://github.com/seqyuan/annopi-ts.git
+cd annopi-ts
+pnpm install
+pnpm build
+pnpm test
+```
+
+## Run the Example Pipeline
+
+The repo includes fixtures copied from Python annopi:
+
+```bash
+node packages/cli/dist/cli.js conf \
+  -p tests/fixtures/annopi/pipeline.yml \
+  -c tests/fixtures/annopi/project.yml \
+  -o /tmp/annopi-out
+```
+
+This generates:
+
+```
+/tmp/annopi-out/
+├── shell/
+│   ├── 1-0-cellranger.sh
+│   └── 2-0-qc.sh
+└── tasks.yml
+```
+
+Inspect the output:
+
+```bash
+cat /tmp/annopi-out/tasks.yml
+```
+
+Then execute:
+
+```bash
+node packages/cli/dist/cli.js run -o /tmp/annopi-out
+```
+
+Completed tasks write a `.sign` file under `shell/`. Re-running `run` skips done tasks.
+
+## Development Scripts
+
+From the repo root:
+
+```bash
+pnpm build       # build all packages
+pnpm test        # run all tests
+pnpm typecheck   # TypeScript check
+pnpm site:dev    # start documentation site
+```
+
+## Site (Documentation)
+
+```bash
+pnpm site:dev
+```
+
+Open [http://localhost:3000](http://localhost:3000) for the English home page, or
+[http://localhost:3000/zh](http://localhost:3000/zh) for Chinese.
+
+## Next Steps
+
+- [Usage guide](/docs/usage) — conf/run workflow in detail
+- [Runners](/docs/runners) — configure ata and annotask paths
+- [Configuration](/docs/configuration) — pipeline and project YAML reference

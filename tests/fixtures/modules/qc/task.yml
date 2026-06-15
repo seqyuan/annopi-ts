@@ -1,0 +1,2 @@
+title: QC
+command: fastqc ${sample.id}

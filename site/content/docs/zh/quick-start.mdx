@@ -1,0 +1,82 @@
+---
+title: 快速开始
+description: 克隆 annopi-ts、构建包、运行示例流程。
+---
+
+## 前置条件
+
+- **Node.js ≥ 18**
+- **pnpm**（仓库使用 `pnpm@10`）
+- **ata** 用于本地任务执行（[`../ata`](https://github.com/seqyuan/ata)）
+- **annotask** 用于 qsubsge 集群投递（[`../annotask`](https://github.com/seqyuan/annotask)）— 若所有任务均为 `executor: local` 则可省略
+
+## 克隆与构建
+
+```bash
+git clone https://github.com/seqyuan/annopi-ts.git
+cd annopi-ts
+pnpm install
+pnpm build
+pnpm test
+```
+
+## 运行示例流程
+
+仓库包含从 Python annopi 复制的 fixtures：
+
+```bash
+node packages/cli/dist/cli.js conf \
+  -p tests/fixtures/annopi/pipeline.yml \
+  -c tests/fixtures/annopi/project.yml \
+  -o /tmp/annopi-out
+```
+
+生成目录结构：
+
+```
+/tmp/annopi-out/
+├── shell/
+│   ├── 1-0-cellranger.sh
+│   └── 2-0-qc.sh
+└── tasks.yml
+```
+
+查看输出：
+
+```bash
+cat /tmp/annopi-out/tasks.yml
+```
+
+然后执行：
+
+```bash
+node packages/cli/dist/cli.js run -o /tmp/annopi-out
+```
+
+完成的任务在 `shell/` 下写入 `.sign` 文件。重新 `run` 会跳过已完成任务。
+
+## 开发命令
+
+在仓库根目录：
+
+```bash
+pnpm build       # 构建所有包
+pnpm test        # 运行所有测试
+pnpm typecheck   # TypeScript 检查
+pnpm site:dev    # 启动文档站
+```
+
+## 文档站
+
+```bash
+pnpm site:dev
+```
+
+打开 [http://localhost:3000](http://localhost:3000) 查看英文首页，或
+[http://localhost:3000/zh](http://localhost:3000/zh) 查看中文。
+
+## 下一步
+
+- [使用指南](/docs/usage) — conf/run 工作流详解
+- [执行器](/docs/runners) — 配置 ata 和 annotask 路径
+- [配置参考](/docs/configuration) — pipeline 和 project YAML 参考

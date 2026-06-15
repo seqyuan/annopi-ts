@@ -1,0 +1,149 @@
+---
+title: Configuration
+description: pipeline.yml and project.yml reference for annopi-ts.
+---
+
+## pipeline.yml
+
+Defines the workflow: tasks, dependencies, resources, and global deps.
+
+```yaml
+name: scRNA_pipeline
+version: 1.0.0
+
+imports:
+  - github.com/user/scrna-tasks/cellranger@v1.2.3
+
+deps:
+  ata: /path/to/ata
+  annotask: /path/to/annotask
+  cellranger: /opt/cellranger-7.0.0
+
+tasks:
+  cellranger:
+    name: cellranger
+    inputs:
+      - ${config.Para.Para_clean}/${sample.sample_name}
+    outputs:
+      - ./process/cellranger/${sample.sample_name}/outs
+    params:
+      sample_id: ${sample.sample_id}
+      sample_name: ${sample.sample_name}
+      ref: ${config.Para.Para_ref}
+    command: |
+      cellranger count --id=${sample_id} --transcriptome=${ref}
+    resources:
+      cpu: 8
+      mem: 32
+      queue: sci.q
+      executor: qsubsge
+      mode: pe_smp
+    annotask:
+      lines: 1
+      threads: 3
+      project: ${config.Para.Para_project_id}
+
+  qc:
+    command: qc_script.py --input ${input_dir}
+    resources:
+      executor: local
+    annotask:
+      lines: 2
+      threads: 5
+
+dependencies:
+  qc:
+    - cellranger
+```
+
+### Key fields
+
+| Field | Description |
+|---|---|
+| `name` | Pipeline identifier written to `tasks.yml` |
+| `imports` | Task modules to load (path or git) |
+| `deps` | Global paths — tools and runners (`ata`, `annotask`) |
+| `tasks` | Task definitions |
+| `dependencies` | DAG edges between task names |
+
+### Task fields
+
+| Field | Description |
+|---|---|
+| `command` | Shell commands (one logical command; expanded per sample) |
+| `params` | Parameter bindings with `${...}` references |
+| `inputs` / `outputs` | Declared paths for validation |
+| `resources` | CPU, mem, queue, `executor` (`local` or `qsubsge`) |
+| `annotask` | `lines`, `threads`, `project` for runcmd generation |
+
+### Parameter references
+
+| Prefix | Source |
+|---|---|
+| `${sample.*}` | Current sample from `project.yml` |
+| `${config.*}` | Nested values from `project.yml` |
+| `${deps.*}` | Paths from pipeline `deps` |
+| `${params.*}` | Other params in the same task |
+
+Param modes: `single` (default), `sample` (one task per sample), `cmp` (pairwise comparison).
+
+## project.yml
+
+Defines project-level data: samples and configuration parameters.
+
+```yaml
+Para:
+  Para_project_id: PM-EXAMPLE-001
+  Para_ref: /data/refdata-gex-GRCh38-2020-A
+  Para_clean: /data/clean
+
+sample:
+  - sample_id: S1
+    sample_name: sample1
+  - sample_id: S2
+    sample_name: sample2
+```
+
+The `sample` list drives per-sample expansion when tasks use `${sample.*}` references.
+
+## tasks.yml (generated)
+
+Written by `annopi conf` to `<outdir>/tasks.yml`:
+
+```yaml
+pipeline: scRNA_pipeline
+generated_at: 2026-06-15 11:20:57
+tasks:
+  1-0-cellranger:
+    runcmd: annotask qsubsge -i /out/shell/1-0-cellranger.sh ...
+    depends: []
+    status: pending
+  2-0-qc:
+    runcmd: /path/to/ata -i /out/shell/2-0-qc.sh -l 4 -t 10
+    depends: [1-0-cellranger]
+    status: pending
+```
+
+Task names are numbered: `{order}-{sampleIndex}-{taskName}`.
+
+### .sign checkpoints
+
+After a task succeeds, `run` writes `shell/{taskname}.sh.sign`. On the next `run`,
+tasks with existing `.sign` files are marked `done` and skipped.
+
+## Validation
+
+`conf` validates:
+
+- Undeclared `${deps.*}` references
+- Missing `${config.*}` or `${sample.*}` paths
+- Circular or missing dependencies
+- Import module resolution
+
+Errors print as `[ERROR]`; warnings as `[WARN]`.
+
+## Further reading
+
+- [Runners](/docs/runners) — ata / annotask path resolution
+- [Usage](/docs/usage) — conf and run workflow
+- [Rewrite plan](https://github.com/seqyuan/annopi-ts/blob/main/docs/annopi-ts-rewrite-plan-v2.1.md) — full V1 design

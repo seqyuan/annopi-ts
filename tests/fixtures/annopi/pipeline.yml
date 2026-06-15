@@ -1,0 +1,51 @@
+name: scRNA_pipeline
+version: 1.0.0
+
+imports:
+  - github.com/user/scrna-tasks/cellranger@v1.2.3
+
+tasks:
+  cellranger:
+    name: cellranger
+    inputs:
+      - ${config.Para.Para_clean}/${sample.sample_name}
+    outputs:
+      - ./process/cellranger/${sample.sample_name}/outs
+    params:
+      sample_id: ${sample.sample_id}
+      sample_name: ${sample.sample_name}
+      ref: ${config.Para.Para_ref}
+    command: |
+      cellranger count --id=${sample_id} --transcriptome=${ref} --sample=${sample_name}
+    resources:
+      cpu: 8
+      mem: 32
+      queue: sci.q
+      executor: qsubsge
+      mode: pe_smp
+    annotask:
+      lines: 1
+      threads: 3
+      project: ${config.Para.Para_project_id}
+
+  qc:
+    name: qc
+    inputs:
+      - ./process/cellranger/${sample.sample_name}/outs
+    outputs:
+      - ./process/qc/${sample.sample_name}
+    params:
+      input_dir: ./process/cellranger/${sample.sample_name}/outs
+    command: |
+      qc_script.py --input ${input_dir}
+    resources:
+      cpu: 4
+      mem: 16
+      executor: local
+    annotask:
+      lines: 2
+      threads: 5
+
+dependencies:
+  qc:
+    - cellranger

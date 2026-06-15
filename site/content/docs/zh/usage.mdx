@@ -1,0 +1,106 @@
+---
+title: 使用指南
+description: annopi conf 与 annopi run 工作流。
+---
+
+## 概览
+
+annopi-ts 采用两步工作流：
+
+1. **`conf`** — 解析配置、校验引用、展开参数、生成 `shell/*.sh` 和 `tasks.yml`
+2. **`run`** — 从 `tasks.yml` 执行 pending 任务，遵守依赖关系和 `.sign` 断点
+
+```
+pipeline.yml + project.yml
+        │ conf
+        ▼
+  shell/*.sh + tasks.yml
+        │ run
+        ▼
+  .sign 文件 + 任务输出
+```
+
+## annopi conf
+
+```bash
+annopi conf \
+  -p <pipeline.yml> \
+  -c <project.yml> \
+  -o <outdir>
+```
+
+### conf 做什么
+
+1. 加载 `pipeline.yml` 并合并导入的任务模块
+2. 校验 deps、config 和 sample 引用
+3. 展开参数（single / sample / cmp 模式）
+4. 构建任务 DAG 和拓扑序
+5. 为每个编号任务写入 `<outdir>/shell/` 下的 shell 脚本
+6. 写入 `<outdir>/tasks.yml`，包含 `runcmd`、`depends` 和 `status: pending`
+
+### 输出示例
+
+```
+[CHECK] task 'cellranger' ... OK
+[CHECK] task 'qc' ... OK
+Generated 2 task scripts in /tmp/annopi-out/shell
+Generated tasks.yml in /tmp/annopi-out
+```
+
+### Shell 脚本格式
+
+每个 `shell/N-M-taskname.sh` 文件每行一条命令 — 即 ata 和 annotask `-i` 输入文件所期望的格式。
+
+## annopi run
+
+```bash
+annopi run -o <outdir>
+```
+
+### run 做什么
+
+1. 读取 `<outdir>/tasks.yml`
+2. 根据 `shell/` 下的 `.sign` 文件刷新任务状态
+3. 调度 ready 任务（依赖已满足、状态为 pending）
+4. 执行每个 ready 任务的 `runcmd`
+5. 成功后写入 `.sign`
+
+### 断点续跑
+
+若所有任务已完成：
+
+```
+All tasks already done.
+```
+
+要强制重跑，删除 `shell/` 下对应的 `.sign` 文件。
+
+## annopi install
+
+```bash
+annopi install <source>
+annopi install <source> --update
+```
+
+从本地路径或 git URL 安装/更新任务模块。模块任务可通过 `pipeline.yml` 中的 `imports` 引用。
+
+## Python ↔ TypeScript 互操作
+
+annopi-ts 的设计目标：
+
+- Python `annopi conf` 的输出可由 `annopi-ts run` 执行
+- annopi-ts `conf` 的输出可由 Python `annopi run` 执行
+
+两者应产生语义兼容的 `tasks.yml`。YAML 格式细节可能略有差异。
+
+## Fixtures
+
+测试 fixtures 位于 `tests/fixtures/annopi/`：
+
+| 文件 | 说明 |
+|---|---|
+| `pipeline.yml` | scRNA 示例，含 qsubsge + local 任务 |
+| `pipeline_with_deps.yml` | 带 cellranger 路径 deps 的流程 |
+| `project.yml` | 样本列表和项目参数 |
+
+YAML 字段参考见 [配置参考](/docs/configuration)。

@@ -1,0 +1,80 @@
+---
+title: annopi-ts
+description: TypeScript 生信流程编排引擎 — YAML 到 Shell 到 DAG 执行。
+---
+
+## 什么是 annopi-ts？
+
+**annopi-ts** 是 [annopi](https://github.com/seqyuan/annopi) 的 TypeScript 重写版，一个生信流程编排引擎。
+它读取 `pipeline.yml` 和 `project.yml`，按样本展开参数，生成 `shell/*.sh` 脚本和 `tasks.yml`，
+然后通过 `.sign` 文件实现断点续跑。
+
+### V1 范围
+
+V1 交付：
+
+| 命令 | 用途 |
+|---|---|
+| `annopi conf` | 校验配置，生成脚本和 `tasks.yml` |
+| `annopi run` | 从 `tasks.yml` 执行 pending 任务 |
+| `annopi install` | 安装或更新任务模块 |
+
+V1 **不包含** `annopi report`。报告方案面向 [`../rst`](../rst) — 见
+[报告设计文档](https://github.com/seqyuan/annopi-ts/blob/main/docs/annopi-report-design.md)。
+
+### 包结构
+
+```
+@seqyuan/annopi-core    纯模型、解析、校验、参数展开、DAG
+@seqyuan/annopi-node    文件 I/O、模块加载、生成器、运行时
+@seqyuan/annopi-cli     命令行接口
+@seqyuan/annopi-extension   annovibe 扩展 API 占位
+```
+
+### 执行模型
+
+annopi-ts 在 `tasks.yml` 中为两种执行器模式生成 `runcmd`：
+
+| 模式 | runcmd 形态 | 执行器 |
+|---|---|---|
+| **local** | `{runner} -i script -l N -t M` | `ata` 或 `annotask`（不加 `local` 子命令） |
+| **qsubsge** | `{annotask} qsubsge -i script ...` | `annotask` 加集群参数 |
+
+全局执行器路径通过 pipeline `deps` 配置：
+
+```yaml
+deps:
+  ata: /path/to/ata
+  annotask: /path/to/annotask
+```
+
+详见 [执行器](/docs/runners)。
+
+### 兼容性
+
+annopi-ts 与 Python annopi 追求两类兼容：
+
+1. **配置兼容** — 两者读取相同的 `pipeline.yml` / `project.yml`
+2. **执行兼容** — 两者可运行对方生成的 `tasks.yml`
+
+### 架构
+
+```
+pipeline.yml + project.yml
+        │
+        ▼
+  annopi-core   (解析 → 校验 → ParamResolver → DAG)
+        │
+        ▼
+  annopi-node   (ScriptGenerator → TasksYmlGenerator → runPipeline)
+        │
+        ▼
+  annopi CLI    (conf / run / install)
+```
+
+## 开始使用
+
+- [快速开始](/docs/quick-start) — 克隆、构建、运行示例流程
+- [使用指南](/docs/usage) — `conf` 和 `run` 工作流
+- [执行器](/docs/runners) — ata / annotask 路径配置
+- [配置参考](/docs/configuration) — pipeline.yml 和 project.yml

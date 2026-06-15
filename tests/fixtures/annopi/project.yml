@@ -1,0 +1,78 @@
+# 配置文件 - YAML 格式
+version: 1.0.0
+product: 10XGenomics
+sample:
+  # 列: 样本名 | 样本ID | 学名 | 描述 | 报告名 | 组 | 组织 | 备注 | 条件 | 项目ID
+  - sample_name: "0H"
+    sample_id: ED261633778
+    scientific_name: other
+    description: 猪肝脏正常样品
+    report_name: CTRL
+    group: CTRL
+    tissue: 肝脏
+    condition: control
+    project_id: PM-XS01KF2025120173-01
+
+  - sample_name: "24H"
+    sample_id: ED261633779
+    scientific_name: other
+    description: 猪肝脏灌流样品
+    report_name: Perfu24h
+    group: Perfu24h
+    tissue: 肝脏
+    condition: 灌流24h
+    project_id: PM-XS01KF2025120173-01
+
+  - sample_name: "48H"
+    sample_id: ED261633780
+    scientific_name: other
+    description: 猪肝脏灌流样品
+    report_name: Perfu48h
+    group: Perfu48h
+    tissue: 肝脏
+    condition: 灌流48h
+    project_id: PM-XS01KF2025120173-01
+
+cmp:
+  group:
+    - case: Perfu24h
+      control: CTRL
+    - case: Perfu48h
+      control: CTRL
+    - case: Perfu48h
+      control: Perfu24h
+
+Para:
+  Para_clean: /annogene/data2/bioinfo/SCV/PROJECT/Commercial/scRNA/10xRNA/XS01KF2025120173/PM-XS01KF2025120173-01/yaotian/Analysis/../Filter
+  Para_lib: clean
+  Para_mincells: 3
+  Para_mt: 20
+  Para_hb: 5
+  Para_min_nFeature: 200
+  Para_max_nFeature: 10000
+  Para_username: yaotian
+  Para_num: 3
+  Para_all: Combine
+  Para_info: /annogene/data2/bioinfo/SCV/PROJECT/Commercial/scRNA/10xRNA/XS01KF2025120173/PM-XS01KF2025120173-01/yaotian/Analysis/info.txt
+  Para_list: /annogene/data2/bioinfo/SCV/PROJECT/Commercial/scRNA/10xRNA/XS01KF2025120173/PM-XS01KF2025120173-01/yaotian/Analysis/sample.list
+  Para_cmbFile: /annogene/data2/bioinfo/SCV/PROJECT/Commercial/scRNA/10xRNA/XS01KF2025120173/PM-XS01KF2025120173-01/yaotian/Analysis/combine.txt
+  Para_ref: /nas/data1/bioinfo/PROJECT/Commercial/Cooperation/Database/RNA/SinCell_10X/CellRanger_reference/refdata-cellranger-Sus_scrofa.Sscrofa11.1.90.chr
+  Para_species: Sus_scrofa.Sscrofa11.1.90.chr
+  Para_project_type: "10X"
+  Para_ppi_species: other
+  Para_projectName: 中国科学院上海有机化学研究所3个猪肝脏10X_3单细胞转录组建库测序分析结题报告
+  Para_seq: PE150
+  Para_END: PE
+  Para_platform: Illumina
+  Para_forcecell: ""
+  Para_cellmarker_anno: no
+  Para_ProjectType: multiSample
+  Para_project: PM-XS01KF2025120173-01_multiSample
+  Para_project_id: PM-XS01KF2025120173-01
+  Para_category: animal
+
+Combine: 
+  - CTRL
+  - Perfu24h
+  - Perfu48h
+

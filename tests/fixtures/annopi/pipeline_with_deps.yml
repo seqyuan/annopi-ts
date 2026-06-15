@@ -1,0 +1,23 @@
+name: test_deps_pipeline
+version: 1.0.0
+
+deps:
+  cellranger: /opt/cellranger-7.0.0
+  reference: /data/refdata-gex-GRCh38-2020-A
+
+tasks:
+  cellranger:
+    name: cellranger
+    params:
+      sample_name: ${sample.sample_name}
+      ref: ${deps.reference}
+    command: |
+      ${deps.cellranger}/cellranger count --id=${sample_name} --transcriptome=${ref}
+    resources:
+      cpu: 8
+      executor: local
+    annotask:
+      lines: 1
+      threads: 2
+
+dependencies: {}

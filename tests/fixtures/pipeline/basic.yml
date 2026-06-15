@@ -1,0 +1,9 @@
+name: basic
+version: "1.0.0"
+imports: []
+tasks:
+  qc:
+    command: fastqc ${sample.id}
+dependencies: {}
+deps:
+  fastqc: /usr/bin/fastqc

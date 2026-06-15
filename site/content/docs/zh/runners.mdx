@@ -1,0 +1,114 @@
+---
+title: 执行器
+description: ata 与 annotask 全局路径配置，用于 local 和 qsubsge 执行。
+---
+
+## 概览
+
+annopi-ts 不硬编码 `ata` 或 `annotask` 二进制名，而是从合并后的 pipeline `deps` 解析**全局执行器路径**，
+并在 `tasks.yml` 中生成 `runcmd`。
+
+| 模式 | `resources.executor` | 生成的 runcmd |
+|---|---|---|
+| **local** | `local` | `{localRunner} -i script -l N -t M` |
+| **qsubsge** | `qsubsge` | `{annotaskRunner} qsubsge -i script ...` |
+
+## 为什么 local 模式不加 `local` 子命令？
+
+**ata** 和 **annotask** 的本地接口一致：
+
+```bash
+runner -i script.sh -l <lines> -t <threads>
+```
+
+- **ata** 用 `-i` 始终在本地执行
+- **annotask** 不指定子命令时默认为本地模式
+
+因此 local 模式下 annopi-ts 生成的命令**不带** `local` 子命令，使 ata 与 annotask 在本地可互换。
+
+集群投递仅 annotask 支持 `qsubsge` 子命令：
+
+```bash
+annotask qsubsge -i script.sh -l N -t M --cpu C --queue Q --project P
+```
+
+## 在 pipeline.yml 中配置路径
+
+在 `deps` 下设置全局软件路径：
+
+```yaml
+name: my_pipeline
+version: 1.0.0
+
+deps:
+  ata: /Volumes/data/GOPATH/bin/ata
+  annotask: /opt/annotask
+
+tasks:
+  local_task:
+    command: echo hello
+    resources:
+      executor: local
+
+  cluster_task:
+    command: echo cluster
+    resources:
+      executor: qsubsge
+      cpu: 4
+      queue: all.q
+```
+
+### 解析规则
+
+```
+localRunner    = deps.ata ?? deps.annotask ?? defaultAta
+annotaskRunner = deps.annotask ?? defaultAnnotask
+```
+
+- **localRunner** 用于所有 `executor: local` 任务
+- **annotaskRunner** 用于所有 `executor: qsubsge` 任务
+
+若未设置 `deps.ata` 但设置了 `deps.annotask`，annotask 也可作为本地执行器。
+
+### 默认发现顺序
+
+未在 deps 中指定时，annopi-ts 依次查找：
+
+1. `/Volumes/data/GOPATH/bin/ata` 和 `/Volumes/data/GOPATH/bin/annotask`
+2. `PATH` 中的 `ata` / `annotask`
+3. 回退为命令名 `ata` / `annotask`
+
+## tasks.yml 输出示例
+
+```yaml
+tasks:
+  1-0-cellranger:
+    runcmd: annotask qsubsge -i shell/1-0-cellranger.sh -l 1 -t 10 --cpu 8 --queue sci.q --project DEMO
+    depends: []
+  2-0-qc:
+    runcmd: /Volumes/data/GOPATH/bin/ata -i shell/2-0-qc.sh -l 4 -t 10
+    depends: [1-0-cellranger]
+```
+
+注意：local 的 runcmd 没有 `local` 关键字，也没有 `--project` 参数。
+
+## 相关工具
+
+| 工具 | 仓库 | 角色 |
+|---|---|---|
+| **ata** | [`../ata`](../ata) | 本地并行任务执行器 |
+| **annotask** | [`../annotask`](../annotask) | 本地执行 + SGE qsubsge 投递 |
+
+本地开发安装 ata 即可。qsubsge 模式需编译 annotask（需要 DRMAA 头文件）。
+
+## 其他 deps
+
+`pipeline.yml` 的 `deps` 也存放任务命令中引用的工具路径（非执行器）：
+
+```yaml
+deps:
+  cellranger: /opt/cellranger-7.0.0
+  reference: /data/refdata-gex-GRCh38-2020-A
+```
+
+这些在 `conf` 时展开为 `${deps.cellranger}` 等。执行器键（`ata`、`annotask`）保留给路径解析使用。
