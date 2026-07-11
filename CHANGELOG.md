@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.2
+
+### Fixes
+
+- Run Python annopi compatibility tests via `python3 -m annopi.cli.main` to avoid PATH clash with the `@seqyuan/annopi` CLI in pnpm workspaces
+
 ## 0.1.1
 
 ### Changes

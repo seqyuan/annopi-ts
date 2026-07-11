@@ -1,6 +1,6 @@
 {
   "name": "@seqyuan/annopi-core",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Pure pipeline models, parsers, validators, and DAG builder for annopi-ts",
   "type": "module",
   "license": "MIT",
