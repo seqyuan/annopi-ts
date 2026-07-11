@@ -4,6 +4,15 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+catalogs:
+  default:
+    '@seqyuan/rst-cli':
+      specifier: ^0.1.2
+      version: 0.1.2
+    '@seqyuan/rst-renderer':
+      specifier: ^0.1.2
+      version: 0.1.2
+
 importers:
 
   .:
@@ -38,7 +47,7 @@ importers:
         version: 5.9.3
       vitest:
         specifier: ^4.0.0
-        version: 4.1.8(@types/node@24.13.2)(vite@8.0.16(@types/node@24.13.2)(esbuild@0.27.7)(jiti@2.7.0)(yaml@2.9.0))
+        version: 4.1.8(@types/node@24.13.2)(vite@8.0.16(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.7.0)(yaml@2.9.0))
 
   packages/core:
     devDependencies:
@@ -53,7 +62,7 @@ importers:
         version: 5.9.3
       vitest:
         specifier: ^4.0.0
-        version: 4.1.8(@types/node@24.13.2)(vite@8.0.16(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.7.0)(yaml@2.9.0))
+        version: 4.1.8(@types/node@24.13.2)(vite@8.0.16(@types/node@24.13.2)(esbuild@0.27.7)(jiti@2.7.0)(yaml@2.9.0))
 
   packages/extension:
     dependencies:
@@ -98,6 +107,25 @@ importers:
       vitest:
         specifier: ^4.0.0
         version: 4.1.8(@types/node@24.13.2)(vite@8.0.16(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.7.0)(yaml@2.9.0))
+
+  packages/report:
+    dependencies:
+      '@seqyuan/rst-renderer':
+        specifier: 'catalog:'
+        version: 0.1.2(react@19.2.7)
+    devDependencies:
+      '@seqyuan/rst-cli':
+        specifier: 'catalog:'
+        version: 0.1.2(react@19.2.7)
+      '@types/node':
+        specifier: ^24.12.0
+        version: 24.13.2
+      tsup:
+        specifier: ^8.0.0
+        version: 8.5.1(jiti@2.7.0)(postcss@8.5.15)(typescript@5.9.3)(yaml@2.9.0)
+      typescript:
+        specifier: ^5.7.0
+        version: 5.9.3
 
   site:
     dependencies:
@@ -1333,6 +1361,18 @@ packages:
     cpu: [x64]
     os: [win32]
 
+  '@seqyuan/rst-cli@0.1.2':
+    resolution: {integrity: sha512-bNlh1QKJEGqubl0u9Zyt+teP8OOHz5ap5FAdqjX+lp7QPeAOaPZLKzQtT4RXNrXux/6vRE589sUOGzqxGK5OQQ==}
+    hasBin: true
+
+  '@seqyuan/rst-renderer@0.1.2':
+    resolution: {integrity: sha512-OpXrpWB3se1blOs4bpLoixB0vxP1AyLKcNv21QkrqyKPvk7qPf19VPGg469s4cZO7dZlTNGQuaQeiSTcA7iknA==}
+    peerDependencies:
+      react: '>=18.0.0'
+    peerDependenciesMeta:
+      react:
+        optional: true
+
   '@shikijs/core@4.2.0':
     resolution: {integrity: sha512-Hc87Ab1Ld/vEbZRCbwx344I5v+4RU8CVToUTRkqXL1+TjbuOp9U5Xa0M23V4GEWHxVn+yO5otb+HkQVm3ptWQQ==}
     engines: {node: '>=20'}
@@ -1643,6 +1683,10 @@ packages:
   commander@4.1.1:
     resolution: {integrity: sha512-NOKm8xhkzAjzFx8B2v5OAHT+u5pRQc2UCa2Vq9jYL/31o2wi9mxBA7LIFs3sV5VSC49z6pEhfbMULvShKj26WA==}
     engines: {node: '>= 6'}
+
+  commander@8.3.0:
+    resolution: {integrity: sha512-OkTL9umf+He2DZkUq8f8J9of7yL6RJKI24dVITBmNfZBmri9zYZQrKkuXiKhyfPSu8tUhnVBB1iKXevvnlR4Ww==}
+    engines: {node: '>= 12'}
 
   compute-scroll-into-view@3.1.1:
     resolution: {integrity: sha512-VRhuHOLoKYOy4UbilLbUzbYg93XLjv2PncJC50EuTWPA3gaja1UjBsUP/D/9/juV3vQFr6XBEzn9KCAHdUvOHw==}
@@ -1958,6 +2002,10 @@ packages:
 
   js-yaml@4.2.0:
     resolution: {integrity: sha512-ePWsvanv0DWuDRsW8dnt+R4jQ31SCRCQ7hhNcPXZPsoBZiemuZNYGf7adZdqX2D86j6rvKp3RpCxVTSb8WQlOw==}
+    hasBin: true
+
+  katex@0.16.47:
+    resolution: {integrity: sha512-Eeo8Ys1doU1z+x8AZsPpQu+p/QcZBI5PeOo7QGQdy2x2m0MU/hYagBbGOmXwr5KVbEfVuWv9LpnQWeehogurjg==}
     hasBin: true
 
   lightningcss-android-arm64@1.32.0:
@@ -2450,6 +2498,9 @@ packages:
     resolution: {integrity: sha512-nc72Wgq62I7rtDV4izT5/aaS0zxy3kttkinf9586ApknY3jZO9NYsmtc24fUckA0X7Q2v+ML4a15pdUlV5V/jA==}
     engines: {node: '>=18.0.0', npm: '>=8.0.0'}
     hasBin: true
+
+  rst-compiler@0.5.9:
+    resolution: {integrity: sha512-eWHoAKYJC+b8tW6MgZQNqv/Oa+9l5npPW3EGVpTHitkRa6YvwIxQjqsA+Iotv974pdlz8DXC9ELKJ3AVtyrR3w==}
 
   scheduler@0.27.0:
     resolution: {integrity: sha512-eNv+WrVbKu1f3vbYJT/xtiF5syA5HPIMtf9IgY/nKg0sWqzAUEvqY/xm7OcZc/qafLx/iO9FgOmeSAp4v5ti/Q==}
@@ -3612,6 +3663,21 @@ snapshots:
   '@rollup/rollup-win32-x64-msvc@4.62.0':
     optional: true
 
+  '@seqyuan/rst-cli@0.1.2(react@19.2.7)':
+    dependencies:
+      '@seqyuan/rst-renderer': 0.1.2(react@19.2.7)
+    transitivePeerDependencies:
+      - react
+
+  '@seqyuan/rst-renderer@0.1.2(react@19.2.7)':
+    dependencies:
+      katex: 0.16.47
+      react-dom: 19.2.7(react@19.2.7)
+      rst-compiler: 0.5.9
+      shiki: 4.2.0
+    optionalDependencies:
+      react: 19.2.7
+
   '@shikijs/core@4.2.0':
     dependencies:
       '@shikijs/primitive': 4.2.0
@@ -3898,6 +3964,8 @@ snapshots:
   commander@14.0.3: {}
 
   commander@4.1.1: {}
+
+  commander@8.3.0: {}
 
   compute-scroll-into-view@3.1.1: {}
 
@@ -4310,6 +4378,10 @@ snapshots:
   js-yaml@4.2.0:
     dependencies:
       argparse: 2.0.1
+
+  katex@0.16.47:
+    dependencies:
+      commander: 8.3.0
 
   lightningcss-android-arm64@1.32.0:
     optional: true
@@ -5123,6 +5195,11 @@ snapshots:
       '@rollup/rollup-win32-x64-gnu': 4.62.0
       '@rollup/rollup-win32-x64-msvc': 4.62.0
       fsevents: 2.3.3
+
+  rst-compiler@0.5.9:
+    dependencies:
+      katex: 0.16.47
+      shiki: 4.2.0
 
   scheduler@0.27.0: {}
 

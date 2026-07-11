@@ -30,6 +30,14 @@ V1 does **not** include `annopi report`. Report design targets [`../rst`](../rst
 @seqyuan/annopi-node    File I/O, module loading, generators, runtime
 @seqyuan/annopi     Command-line interface
 @seqyuan/annopi-extension   TypeScript API for annovibe / OpenVibe
+@seqyuan/annopi-report      Report helpers (depends on rst)
+```
+
+Report rendering uses the published [rst](https://github.com/seqyuan/rst) packages:
+
+```
+@seqyuan/rst-renderer   Template + RST → HTML / Markdown / React
+@seqyuan/rst-cli        rst-render CLI for report pipeline tasks
 ```
 
 ### Execution Model

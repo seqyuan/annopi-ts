@@ -1,13 +1,13 @@
 {
-  "name": "@seqyuan/annopi-extension",
+  "name": "@seqyuan/annopi-report",
   "version": "0.1.3",
-  "description": "Extension API for annovibe/OpenVibe integration",
+  "description": "Report helpers for annopi-ts — delegates rendering to @seqyuan/rst-renderer",
   "type": "module",
   "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/seqyuan/annopi-ts.git",
-    "directory": "packages/extension"
+    "directory": "packages/report"
   },
   "publishConfig": {
     "access": "public"
@@ -25,18 +25,23 @@
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
-    "test": "vitest run",
-    "test:watch": "vitest",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@seqyuan/annopi-core": "workspace:*",
-    "@seqyuan/annopi-node": "workspace:*"
+    "@seqyuan/rst-renderer": "catalog:"
+  },
+  "peerDependencies": {
+    "@seqyuan/rst-cli": "catalog:"
+  },
+  "peerDependenciesMeta": {
+    "@seqyuan/rst-cli": {
+      "optional": true
+    }
   },
   "devDependencies": {
+    "@seqyuan/rst-cli": "catalog:",
     "@types/node": "^24.12.0",
     "tsup": "^8.0.0",
-    "typescript": "^5.7.0",
-    "vitest": "^4.0.0"
+    "typescript": "^5.7.0"
   }
 }

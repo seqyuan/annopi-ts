@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.3
+
+### Changes
+
+- Add `@seqyuan/annopi-report` with dependencies on published `@seqyuan/rst-renderer` and `@seqyuan/rst-cli` (from [rst](https://github.com/seqyuan/rst))
+
 ## 0.1.2
 
 ### Fixes

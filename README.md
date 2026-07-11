@@ -83,6 +83,22 @@ annopi run -o /tmp/annopi-out
 | `@seqyuan/annopi-node` | File I/O, module loading, generators, runtime |
 | `@seqyuan/annopi` | Command-line interface (`annopi` binary) |
 | `@seqyuan/annopi-extension` | TypeScript API for annovibe / OpenVibe integration |
+| `@seqyuan/annopi-report` | Report helpers (depends on [`rst`](https://github.com/seqyuan/rst)) |
+
+### Report (`rst` public packages)
+
+Report rendering is delegated to the published [rst](https://github.com/seqyuan/rst) packages — not bundled into annopi core:
+
+| Package | Description |
+|---------|-------------|
+| `@seqyuan/rst-renderer` | Template engine + RST → HTML / Markdown / React |
+| `@seqyuan/rst-cli` | `rst-render` CLI for report pipeline tasks |
+
+```bash
+npm install @seqyuan/annopi-report
+# optional CLI for shell-based report tasks
+npm install -g @seqyuan/rst-cli
+```
 
 ## Development
 
