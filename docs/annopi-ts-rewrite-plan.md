@@ -160,7 +160,7 @@ annopi-ts/
 │   │   ├── tsconfig.json
 │   │   └── tsup.config.ts
 │   │
-│   ├── cli/                # @seqyuan/annopi-cli — CLI 工具
+│   ├── cli/                # @seqyuan/annopi — CLI 工具
 │   │   ├── src/
 │   │   │   ├── cli.ts            # CLI 入口 (commander/yargs)
 │   │   │   ├── commands/
@@ -488,7 +488,7 @@ export class ModuleInstaller {
 
 存储位置：`~/.annopi/tasks/{namespace}/{version}/`（与 Python 版兼容）。
 
-### 3.3 CLI 设计（@seqyuan/annopi-cli）
+### 3.3 CLI 设计（@seqyuan/annopi）
 
 使用 `commander` 或 `yargs`，保持命令行接口与 Python 版完全一致：
 

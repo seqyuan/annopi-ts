@@ -1,23 +1,30 @@
 ---
 title: Quick Start
-description: Clone annopi-ts, build packages, and run the example pipeline.
+description: Install annopi, build from source, and run the example pipeline.
 ---
 
 ## Prerequisites
 
 - **Node.js ≥ 18**
-- **pnpm** (the repo uses `pnpm@10`)
 - **ata** for local task execution ([`../ata`](https://github.com/seqyuan/ata))
 - **annotask** for qsubsge cluster submission ([`../annotask`](https://github.com/seqyuan/annotask)) — optional if all tasks use `executor: local`
 
-## Clone and Build
+## Install
 
 ```bash
-git clone https://github.com/seqyuan/annopi-ts.git
-cd annopi-ts
-pnpm install
-pnpm build
-pnpm test
+npm install -g @seqyuan/annopi
+```
+
+Or with pnpm:
+
+```bash
+pnpm add -g @seqyuan/annopi
+```
+
+Verify:
+
+```bash
+annopi --help
 ```
 
 ## Run the Example Pipeline
@@ -25,7 +32,7 @@ pnpm test
 The repo includes fixtures copied from Python annopi:
 
 ```bash
-node packages/cli/dist/cli.js conf \
+annopi conf \
   -p tests/fixtures/annopi/pipeline.yml \
   -c tests/fixtures/annopi/project.yml \
   -o /tmp/annopi-out
@@ -50,23 +57,34 @@ cat /tmp/annopi-out/tasks.yml
 Then execute:
 
 ```bash
-node packages/cli/dist/cli.js run -o /tmp/annopi-out
+annopi run -o /tmp/annopi-out
 ```
 
-Completed tasks write a `.sign` file under `shell/`. Re-running `run` skips done tasks.
+Completed tasks write a `.sign` file under `shell/`. Re-running `annopi run` skips done tasks.
 
-## Development Scripts
+## Development
 
-From the repo root:
+Clone the monorepo if you want to work on annopi-ts itself:
 
 ```bash
-pnpm build       # build all packages
-pnpm test        # run all tests
-pnpm typecheck   # TypeScript check
-pnpm site:dev    # start documentation site
+git clone https://github.com/seqyuan/annopi-ts.git
+cd annopi-ts
+pnpm install
+pnpm build
+pnpm test
+pnpm typecheck
 ```
 
-## Site (Documentation)
+Link the local CLI:
+
+```bash
+cd packages/cli
+npm link
+cd ../..
+annopi conf -p ... -c ... -o ...
+```
+
+## Documentation Site
 
 ```bash
 pnpm site:dev

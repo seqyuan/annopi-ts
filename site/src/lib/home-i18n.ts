@@ -138,18 +138,19 @@ const en: HomeContent = {
     },
     {
       step: '02',
-      title: 'Clone & Install',
-      code: 'git clone https://github.com/seqyuan/annopi-ts.git\ncd annopi-ts\npnpm install\npnpm build',
+      title: 'Install',
+      code: 'npm install -g @seqyuan/annopi',
+      desc: 'Requires Node.js ≥ 18. Use pnpm add -g @seqyuan/annopi if you prefer pnpm.',
     },
     {
       step: '03',
       title: 'Configure a Pipeline',
-      code: 'node packages/cli/dist/cli.js conf \\\n  -p tests/fixtures/annopi/pipeline.yml \\\n  -c tests/fixtures/annopi/project.yml \\\n  -o /tmp/annopi-out',
+      code: 'annopi conf \\\n  -p tests/fixtures/annopi/pipeline.yml \\\n  -c tests/fixtures/annopi/project.yml \\\n  -o /tmp/annopi-out',
     },
     {
       step: '04',
       title: 'Run Tasks',
-      code: 'node packages/cli/dist/cli.js run -o /tmp/annopi-out',
+      code: 'annopi run -o /tmp/annopi-out',
       note: 'Completed tasks get a .sign file in shell/. Re-run resumes from pending tasks.',
     },
   ],
@@ -232,18 +233,19 @@ const zh: HomeContent = {
     },
     {
       step: '02',
-      title: '克隆与安装',
-      code: 'git clone https://github.com/seqyuan/annopi-ts.git\ncd annopi-ts\npnpm install\npnpm build',
+      title: '安装',
+      code: 'npm install -g @seqyuan/annopi',
+      desc: '需要 Node.js ≥ 18。也可使用 pnpm add -g @seqyuan/annopi。',
     },
     {
       step: '03',
       title: '配置流程',
-      code: 'node packages/cli/dist/cli.js conf \\\n  -p tests/fixtures/annopi/pipeline.yml \\\n  -c tests/fixtures/annopi/project.yml \\\n  -o /tmp/annopi-out',
+      code: 'annopi conf \\\n  -p tests/fixtures/annopi/pipeline.yml \\\n  -c tests/fixtures/annopi/project.yml \\\n  -o /tmp/annopi-out',
     },
     {
       step: '04',
       title: '运行任务',
-      code: 'node packages/cli/dist/cli.js run -o /tmp/annopi-out',
+      code: 'annopi run -o /tmp/annopi-out',
       note: '完成的任务在 shell/ 下生成 .sign 文件。重新 run 会从 pending 任务继续。',
     },
   ],
@@ -256,20 +258,17 @@ export function getHomeContent(locale: string): HomeContent {
   return content[locale as Locale] ?? content.en
 }
 
-export const quickStartCode = `# Clone and build
-git clone https://github.com/seqyuan/annopi-ts.git
-cd annopi-ts
-pnpm install
-pnpm build
+export const quickStartCode = `# Install
+npm install -g @seqyuan/annopi
 
 # Generate scripts and tasks.yml
-node packages/cli/dist/cli.js conf \\
+annopi conf \\
   -p tests/fixtures/annopi/pipeline.yml \\
   -c tests/fixtures/annopi/project.yml \\
   -o /tmp/annopi-out
 
 # Execute pipeline (resume via .sign files)
-node packages/cli/dist/cli.js run -o /tmp/annopi-out
+annopi run -o /tmp/annopi-out
 
 # Optional: set global runner paths in pipeline.yml
 # deps:

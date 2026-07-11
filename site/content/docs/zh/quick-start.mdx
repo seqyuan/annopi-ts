@@ -1,23 +1,30 @@
 ---
 title: 快速开始
-description: 克隆 annopi-ts、构建包、运行示例流程。
+description: 安装 annopi、从源码构建，并运行示例流程。
 ---
 
 ## 前置条件
 
 - **Node.js ≥ 18**
-- **pnpm**（仓库使用 `pnpm@10`）
-- **ata** 用于本地任务执行（[`../ata`](https://github.com/seqyuan/ata)）
-- **annotask** 用于 qsubsge 集群投递（[`../annotask`](https://github.com/seqyuan/annotask)）— 若所有任务均为 `executor: local` 则可省略
+- 本地执行需要 **ata**（[`../ata`](https://github.com/seqyuan/ata)）
+- 集群投递需要 **annotask**（[`../annotask`](https://github.com/seqyuan/annotask)）— 若所有任务都是 `executor: local` 则可省略
 
-## 克隆与构建
+## 安装
 
 ```bash
-git clone https://github.com/seqyuan/annopi-ts.git
-cd annopi-ts
-pnpm install
-pnpm build
-pnpm test
+npm install -g @seqyuan/annopi
+```
+
+或使用 pnpm：
+
+```bash
+pnpm add -g @seqyuan/annopi
+```
+
+验证：
+
+```bash
+annopi --help
 ```
 
 ## 运行示例流程
@@ -25,13 +32,13 @@ pnpm test
 仓库包含从 Python annopi 复制的 fixtures：
 
 ```bash
-node packages/cli/dist/cli.js conf \
+annopi conf \
   -p tests/fixtures/annopi/pipeline.yml \
   -c tests/fixtures/annopi/project.yml \
   -o /tmp/annopi-out
 ```
 
-生成目录结构：
+生成结果：
 
 ```
 /tmp/annopi-out/
@@ -47,23 +54,34 @@ node packages/cli/dist/cli.js conf \
 cat /tmp/annopi-out/tasks.yml
 ```
 
-然后执行：
+执行流程：
 
 ```bash
-node packages/cli/dist/cli.js run -o /tmp/annopi-out
+annopi run -o /tmp/annopi-out
 ```
 
-完成的任务在 `shell/` 下写入 `.sign` 文件。重新 `run` 会跳过已完成任务。
+已完成的任务会在 `shell/` 下写入 `.sign` 文件。再次执行 `annopi run` 会跳过已完成任务。
 
-## 开发命令
+## 开发
 
-在仓库根目录：
+若要参与 annopi-ts 开发，可克隆 monorepo：
 
 ```bash
-pnpm build       # 构建所有包
-pnpm test        # 运行所有测试
-pnpm typecheck   # TypeScript 检查
-pnpm site:dev    # 启动文档站
+git clone https://github.com/seqyuan/annopi-ts.git
+cd annopi-ts
+pnpm install
+pnpm build
+pnpm test
+pnpm typecheck
+```
+
+链接本地 CLI：
+
+```bash
+cd packages/cli
+npm link
+cd ../..
+annopi conf -p ... -c ... -o ...
 ```
 
 ## 文档站
@@ -72,11 +90,11 @@ pnpm site:dev    # 启动文档站
 pnpm site:dev
 ```
 
-打开 [http://localhost:3000](http://localhost:3000) 查看英文首页，或
-[http://localhost:3000/zh](http://localhost:3000/zh) 查看中文。
+英文首页：[http://localhost:3000](http://localhost:3000)  
+中文首页：[http://localhost:3000/zh](http://localhost:3000/zh)
 
 ## 下一步
 
 - [使用指南](/docs/usage) — conf/run 工作流详解
-- [执行器](/docs/runners) — 配置 ata 和 annotask 路径
-- [配置参考](/docs/configuration) — pipeline 和 project YAML 参考
+- [执行器](/docs/runners) — 配置 ata 与 annotask 路径
+- [配置参考](/docs/configuration) — pipeline.yml 与 project.yml

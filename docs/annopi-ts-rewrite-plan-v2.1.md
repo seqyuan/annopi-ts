@@ -181,7 +181,7 @@ annopi-ts/
 7. git 安装
 8. 顶层 workflow 服务
 
-### 4.3 `@seqyuan/annopi-cli`
+### 4.3 `@seqyuan/annopi`
 
 职责：
 

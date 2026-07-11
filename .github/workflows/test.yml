@@ -1,0 +1,44 @@
+name: test
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node and pnpm
+        uses: ./.github/actions/setup-node-pnpm
+        with:
+          working-directory: .
+
+      - name: Build
+        run: corepack pnpm --filter "./packages/*" -r build
+
+      - name: Typecheck
+        run: corepack pnpm --filter "./packages/*" -r typecheck
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Python annopi for compatibility tests
+        run: pip install "git+https://github.com/seqyuan/annopi.git"
+
+      - name: Test
+        run: corepack pnpm --filter "./packages/*" -r test

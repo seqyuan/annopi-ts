@@ -429,7 +429,7 @@ rst 内置模板引擎覆盖 annopi 常用子集：
 ```text
 @seqyuan/annopi-core        （无 report 依赖）
 @seqyuan/annopi-node        （无 report 依赖）
-@seqyuan/annopi-cli         （无 report 依赖；可选 deprecation 别名）
+@seqyuan/annopi         （无 report 依赖；可选 deprecation 别名）
 @seqyuan/annopi-report      （可选；依赖 @seqyuan/rst-renderer + rst-cli context helpers）
 @seqyuan/rst-renderer       （模板 + 渲染核心）
 @seqyuan/rst-cli            （rst-render 命令）

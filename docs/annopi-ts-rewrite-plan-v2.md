@@ -146,7 +146,7 @@ annopi-ts/
 │   │   │   └── index.ts
 │   │   └── tests/
 │   │
-│   ├── cli/                  # @seqyuan/annopi-cli
+│   ├── cli/                  # @seqyuan/annopi
 │   │   └── src/
 │   │
 │   └── extension/            # @seqyuan/annopi-extension

@@ -57,6 +57,9 @@ importers:
 
   packages/extension:
     dependencies:
+      '@seqyuan/annopi-core':
+        specifier: workspace:*
+        version: link:../core
       '@seqyuan/annopi-node':
         specifier: workspace:*
         version: link:../node
@@ -70,6 +73,9 @@ importers:
       typescript:
         specifier: ^5.7.0
         version: 5.9.3
+      vitest:
+        specifier: ^4.0.0
+        version: 4.1.8(@types/node@24.13.2)(vite@8.0.16(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.7.0)(yaml@2.9.0))
 
   packages/node:
     dependencies:

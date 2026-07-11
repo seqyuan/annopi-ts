@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.1.1
+
+### Changes
+
+- Rename CLI package to `@seqyuan/annopi` for simpler global install
+- Implement `createAnnopiExtension()` for annovibe / OpenVibe integration
+- Add Python ↔ TypeScript compatibility tests (`py-conf-ts-run`, `ts-conf-py-run`)
+- Add GitHub Actions for CI and npm publish
+- Rewrite README and documentation site install/usage guides
+
 ## 0.1.0
 
 ### Changes
