@@ -1,5 +1,5 @@
 {
   "framework": "nextjs",
-  "installCommand": "pnpm install",
-  "buildCommand": "pnpm exec fumadocs-mdx && pnpm exec next build --webpack"
+  "installCommand": "pnpm install --frozen-lockfile",
+  "buildCommand": "pnpm fumadocs-mdx && pnpm exec next build"
 }
